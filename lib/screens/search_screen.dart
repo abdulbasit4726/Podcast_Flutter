@@ -21,7 +21,6 @@ class SearchScreenState extends State<SearchScreen> {
 
   void handleSearch(String searchText) async {
     final podcasts = await fetchPodcasts(searchText);
-    // print("Podcasts ${podcasts}");
     setState(() {
       _podcasts = podcasts.results;
     });
@@ -33,7 +32,7 @@ class SearchScreenState extends State<SearchScreen> {
       child: CustomScrollView(
         slivers: [
           CupertinoSliverNavigationBar(
-            largeTitle: Text('My Items'),
+            largeTitle: Text('Search'),
             stretch: true,
             backgroundColor: CupertinoColors.systemGroupedBackground,
             bottomMode: NavigationBarBottomMode.always,
@@ -50,6 +49,7 @@ class SearchScreenState extends State<SearchScreen> {
             ),
           ),
           SearchList(podcasts: _podcasts),
+          SliverToBoxAdapter(child: SizedBox(height: 100)), // 👈 Spacer
         ],
       ),
     );
@@ -69,10 +69,35 @@ class SearchList extends StatelessWidget {
         final podcast = _podcasts[index];
         return CupertinoListTile(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          leadingSize: 50,
-          leading: Image.asset("assets/images/appicon.png", fit: BoxFit.cover),
-          title: Text(podcast.trackName ?? ""),
-          subtitle: Text(podcast.artistName ?? ""),
+          leadingSize: 70,
+          leading: Align(
+            alignment: Alignment.topCenter,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.network(
+                podcast.artworkUrl600 ?? "",
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                podcast.trackName ?? "",
+                maxLines: 2,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+              SizedBox(height: 4),
+              Text(
+                podcast.artistName ?? "",
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
+              ),
+              SizedBox(height: 4),
+            ],
+          ),
+          subtitle: Text("${podcast.trackCount ?? 0} Episodes"),
         );
       }, childCount: _podcasts.length),
     );
